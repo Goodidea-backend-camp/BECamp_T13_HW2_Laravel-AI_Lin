@@ -90,4 +90,15 @@ class Assistant
 
         return $this;
     }
+
+    //審核使用者名稱是否符合善良風俗
+    public function isUsernameDecent($username): bool
+    {
+        $response = $this->client->moderations()->create([
+            'input' => $username,
+        ]);
+
+        // 如果flagged值為false，表示名稱符合善良風俗
+        return $response->results[0]->flagged === false;
+    }
 }
