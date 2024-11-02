@@ -13,3 +13,5 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 //登出
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
+//寄送驗證信
+Route::get('email/verify/{id}/{hash}', [RegisterController::class, 'verifyEmail'])->name('verification.verify');
