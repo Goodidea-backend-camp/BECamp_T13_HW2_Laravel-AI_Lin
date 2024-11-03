@@ -20,4 +20,13 @@ trait ApiResponse
             'message' => $message,
         ], $statuscode);
     }
+
+    public function responseWithToken($message,$data,$statusCode = 200)
+    {
+        return response()->json([
+            'status' => 'success',
+            'message' => $message,
+            'data' => $data,
+        ],$statusCode);
+    }
 }

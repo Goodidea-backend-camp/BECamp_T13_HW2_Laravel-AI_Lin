@@ -19,30 +19,22 @@ class RegisterController extends Controller
     ) {}
     public function register(RegisterRequest $request)
     {
-        try {
-            $validatedData = $request->validated();
+        $validatedData = $request->validated();
 
-            //將請求資料透過 RegisterService 進行處理
-            $result = $this->registerService->registerUser($validatedData);
+        //將請求資料透過 RegisterService 進行處理
+        $result = $this->registerService->registerUser($validatedData);
 
-            return $result['status'] === 'success'
-                ? $this->success($result['message'], $result['statusCode'])
-                : $this->error($result['message'], $result['statusCode']);
-        } catch (\Exception $e) {
-            return $this->error($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        return $result['status'] === 'success'
+            ? $this->success($result['message'], $result['statusCode'])
+            : $this->error($result['message'], $result['statusCode']);
     }
 
     public function verifyEmail($id, $hash)
     {
-        try {
-            $result = $this->emailVerificationService->verifyEmail($id, $hash);
+        $result = $this->emailVerificationService->verifyEmail($id, $hash);
 
-            return $result['status'] === 'success'
-                ? redirect('/')
-                : $this->error($result['message'], $result['statusCode']);
-        } catch (\Exception $e) {
-            return $this->error($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        return $result['status'] === 'success'
+            ? redirect('/')
+            : $this->error($result['message'], $result['statusCode']);
     }
 }
