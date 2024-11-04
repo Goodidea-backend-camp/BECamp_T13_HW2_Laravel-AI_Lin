@@ -4,10 +4,13 @@ namespace App\Services;
 
 use App\AI\Assistant;
 use App\Models\User;
+use App\Traits\ServiceResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 class RegisterService
 {
+    use ServiceResponse;
+
     public function __construct(private Assistant $assistant)
     {
     }
@@ -94,15 +97,5 @@ class RegisterService
 
         return $user;
 
-    }
-
-    // 統一回傳給controller的格式
-    private function formatResponse(string $status, string $message, int $statusCode)
-    {
-        return [
-            'status' => $status,
-            'message' => $message,
-            'statusCode' => $statusCode,
-        ];
     }
 }

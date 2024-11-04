@@ -3,10 +3,13 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Traits\ServiceResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 class EmailVerificationService
 {
+    use ServiceResponse;
+
     public function verifyEmail($id, $hash): array
     {
         // 進入DB並透過ID搜尋使用者
@@ -49,14 +52,5 @@ class EmailVerificationService
     private function isEmailAlreadyVerified(User $user): bool
     {
         return $user->hasVerifiedEmail();
-    }
-
-    private function formatResponse(string $status, string $message, int $statusCode): array
-    {
-        return [
-            'status' => $status,
-            'message' => $message,
-            'statusCode' => $statusCode,
-        ];
     }
 }

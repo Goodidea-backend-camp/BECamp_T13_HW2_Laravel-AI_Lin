@@ -2,11 +2,14 @@
 
 namespace App\Services;
 
+use App\Traits\ServiceResponse;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthService
 {
+    use ServiceResponse;
+
     public function login(array $validatedData)
     {
         // 進入DB透過email跟密碼搜尋使用者
@@ -22,7 +25,7 @@ class AuthService
             return $this->formatResponse('error', 'Please verify your email first.', Response::HTTP_UNAUTHORIZED);
         }
 
-        return $this->formatResponse('success', 'Authenticated', Response::HTTP_OK, ['token' => $this->createTokenForUser($user)->plainTextToken]);
+        return $this->formatResponseWithToken('success', 'Authenticated', Response::HTTP_OK, ['token' => $this->createTokenForUser($user)->plainTextToken]);
     }
 
     private function attemptLogin(array $validatedData): bool
@@ -33,15 +36,5 @@ class AuthService
     private function createTokenForUser($user)
     {
         return $user->createToken('API Token for'.$user->email, ['*'], now()->addMonth());
-    }
-
-    private function formatResponse(string $status, string $message, int $statusCode, array $data = []): array
-    {
-        return [
-            'status' => $status,
-            'message' => $message,
-            'statusCode' => $statusCode,
-            'data' => $data,
-        ];
     }
 }
