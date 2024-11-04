@@ -17,7 +17,7 @@ class EmailVerificationService
         }
 
         // 驗證使用者 ID 和 hash 是否匹配
-        if (!$this->verifyEmailHash($user, $hash)) {
+        if (! $this->verifyEmailHash($user, $hash)) {
             return $this->formatResponse('error', 'Invalid email verification link.', Response::HTTP_UNAUTHORIZED);
         }
 
@@ -51,12 +51,12 @@ class EmailVerificationService
         return $user->hasVerifiedEmail();
     }
 
-    private function formatResponse(string $status, string $message, int $statusCode):array
+    private function formatResponse(string $status, string $message, int $statusCode): array
     {
         return [
             'status' => $status,
             'message' => $message,
-            'statusCode' => $statusCode
+            'statusCode' => $statusCode,
         ];
     }
 }

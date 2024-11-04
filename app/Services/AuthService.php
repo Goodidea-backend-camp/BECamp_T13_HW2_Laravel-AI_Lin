@@ -10,7 +10,7 @@ class AuthService
     public function login(array $validatedData)
     {
         // 進入DB透過email跟密碼搜尋使用者
-        if (!$this->attemptLogin($validatedData)) {
+        if (! $this->attemptLogin($validatedData)) {
             return $this->formatResponse('error', 'Incorrect username or password', Response::HTTP_UNAUTHORIZED);
         }
 
@@ -18,7 +18,7 @@ class AuthService
         $user = Auth::user();
 
         // 檢查使用者是否已驗證電子郵件
-        if (!$user->hasVerifiedEmail()) {
+        if (! $user->hasVerifiedEmail()) {
             return $this->formatResponse('error', 'Please verify your email first.', Response::HTTP_UNAUTHORIZED);
         }
 
@@ -32,7 +32,7 @@ class AuthService
 
     private function createTokenForUser($user)
     {
-        return $user->createToken('API Token for' . $user->email, ['*'], now()->addMonth());
+        return $user->createToken('API Token for'.$user->email, ['*'], now()->addMonth());
     }
 
     private function formatResponse(string $status, string $message, int $statusCode, array $data = []): array

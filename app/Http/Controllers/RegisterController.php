@@ -3,10 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RegisterRequest;
-use App\Traits\ApiResponse;
-use App\Services\RegisterService;
-use Symfony\Component\HttpFoundation\Response;
 use App\Services\EmailVerificationService;
+use App\Services\RegisterService;
+use App\Traits\ApiResponse;
 
 class RegisterController extends Controller
 {
@@ -16,7 +15,9 @@ class RegisterController extends Controller
     public function __construct(
         private RegisterService $registerService,
         private EmailVerificationService $emailVerificationService
-    ) {}
+    ) {
+    }
+
     public function register(RegisterRequest $request)
     {
         $validatedData = $request->validated();

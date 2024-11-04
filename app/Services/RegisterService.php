@@ -8,7 +8,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RegisterService
 {
-    public function __construct(private Assistant $assistant) {}
+    public function __construct(private Assistant $assistant)
+    {
+    }
+
     public function registerUser(array $validatedData): array
     {
         // 確認信箱是否已經被註冊
@@ -22,7 +25,7 @@ class RegisterService
         // 確認使用者名稱是否符合善良風俗
         $usernameValidationResult = $this->validateUserName($validatedData['name']);
 
-        if (!is_null($usernameValidationResult)) {
+        if (! is_null($usernameValidationResult)) {
             return $this->formatResponse('error', $usernameValidationResult['message'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
@@ -52,6 +55,7 @@ class RegisterService
 
             return $this->formatResponse('success', 'Password updated successful!', Response::HTTP_OK);
         }
+
         // 信箱已經被註冊，且密碼已存在（代表首次註冊是使用本地註冊）
         return $this->formatResponse('error', 'The email has already been taken.', Response::HTTP_CONFLICT);
     }
@@ -61,7 +65,7 @@ class RegisterService
     {
         try {
             // 如果使用者名稱不符合善良風俗，回傳錯誤，如果符合善良風俗，回傳null
-            if (!$this->assistant->isUsernameDecent($username)) {
+            if (! $this->assistant->isUsernameDecent($username)) {
                 return $this->formatResponse('error', 'The name is not acceptable.Please try another name.', Response::HTTP_UNPROCESSABLE_ENTITY);
             }
         } catch (\Exception $e) {
@@ -97,7 +101,7 @@ class RegisterService
         return [
             'status' => $status,
             'message' => $message,
-            'statusCode' => $statusCode
+            'statusCode' => $statusCode,
         ];
     }
 }

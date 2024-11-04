@@ -3,16 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
-use App\Traits\ApiResponse;
-use Symfony\Component\HttpFoundation\Response;
 use App\Services\AuthService;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
     use ApiResponse;
 
-    public function __construct(private AuthService $authService) {}
+    public function __construct(private AuthService $authService)
+    {
+    }
 
     public function login(LoginRequest $request)
     {
@@ -24,7 +26,7 @@ class AuthController extends Controller
         return $result['status'] === 'success'
             ? $this->responseWithToken($result['message'], $result['data'], $result['statusCode'])
             : $this->error($result['message'], $result['statusCode']);
-    
+
     }
 
     public function logout(Request $request)
@@ -32,6 +34,7 @@ class AuthController extends Controller
         if (! $request->user()->currentAccessToken()->delete()) {
             return $this->error('Logout failed', Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+
         return $this->success('Logout successfully', Response::HTTP_OK);
     }
 }
