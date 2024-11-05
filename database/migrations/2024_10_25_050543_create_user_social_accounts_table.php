@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('user_social_accounts', function (Blueprint $table) {
             $table->id();
-            $table->enum('provider',['facebook','google']);
+            $table->enum('provider', ['facebook', 'google']);
             $table->string('provider_id');
             $table->string('email');
             $table->foreignId('user_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
