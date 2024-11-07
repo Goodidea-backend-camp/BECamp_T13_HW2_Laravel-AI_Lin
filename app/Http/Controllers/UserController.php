@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\UpdateUserRequest;
+use App\Http\Resources\UserResource;
+use App\Services\UserService;
+use App\Traits\ApiResponse;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
+
+class UserController extends Controller
+{
+    use ApiResponse;
+
+    public function __construct(private UserService $userService)
+    {
+
+    }
+
+    public function show(int $userId): JsonResponse|UserResource
+    {
+        try {
+            $result = $this->userService->getUserData($userId);
+
+            return new UserResource($result);
+        } catch (ModelNotFoundException) {
+            return $this->error('User not found', Response::HTTP_NOT_FOUND);
+        } catch (AuthorizationException) {
+            return $this->error('Unauthorized', Response::HTTP_FORBIDDEN);
+        }
+    }
+
+}

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 //註冊
@@ -20,3 +21,8 @@ Route::get('email/verify/{id}/{hash}', [RegisterController::class, 'verifyEmail'
 Route::get('/google/redirect', [GoogleAuthController::class, 'redirectToGoogle']);
 Route::get('/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
 Route::middleware('auth:sanctum')->post('/google/setup', [GoogleAuthController::class, 'handleGoogleSetup']);
+
+//取得使用者資訊
+Route::middleware('auth:sanctum')->get('/users/{user}', [UserController::class, 'show']);
+//編輯使用者資訊
+Route::middleware('auth:sanctum')->patch('/users/{user}', [UserController::class, 'update']);
