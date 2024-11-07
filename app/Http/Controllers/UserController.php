@@ -33,4 +33,19 @@ class UserController extends Controller
         }
     }
 
+    public function update(UpdateUserRequest $request, int $userId): JsonResponse|UserResource
+    {
+        try {
+            $validatedData = $request->validated();
+            $result = $this->userService->updateUserData($userId, $validatedData);
+
+            return new UserResource($result);
+        } catch (ModelNotFoundException) {
+            return $this->error('User not found', Response::HTTP_NOT_FOUND);
+        } catch (AuthorizationException) {
+            return $this->error('Unauthorized', Response::HTTP_FORBIDDEN);
+        } catch (\Exception $e) {
+            return $this->error($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }
