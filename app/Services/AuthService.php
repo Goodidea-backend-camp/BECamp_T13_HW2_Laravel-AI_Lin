@@ -2,15 +2,17 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use App\Traits\ServiceResponse;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Sanctum\NewAccessToken;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthService
 {
     use ServiceResponse;
 
-    public function login(array $validatedData)
+    public function login(array $validatedData): array
     {
         // 進入DB透過email跟密碼搜尋使用者
         if (! $this->attemptLogin($validatedData)) {
@@ -33,7 +35,7 @@ class AuthService
         return Auth::attempt(['email' => $validatedData['email'], 'password' => $validatedData['password']]);
     }
 
-    private function createTokenForUser($user)
+    private function createTokenForUser(User $user): NewAccessToken
     {
         return $user->createToken('API Token for'.$user->email, ['*'], now()->addMonth());
     }

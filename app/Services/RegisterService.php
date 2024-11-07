@@ -23,7 +23,7 @@ class RegisterService
 
             // 信箱已經被註冊
             if ($existingUser) {
-                return $this->handleExistingUserPassword($existingUser, $validatedData);
+                return $this->handleExistingUserPassword($existingUser, $validatedData['password']);
             }
 
             // 確認使用者名稱是否符合善良風俗
@@ -48,20 +48,20 @@ class RegisterService
         }
     }
 
-    private function findExistingUserByEmail($email): ?user
+    private function findExistingUserByEmail(string $email): ?user
     {
         return User::firstWhere('email', $email);
     }
 
-    private function handleExistingUserPassword($existingUser, $validatedData): array
+    private function handleExistingUserPassword(User $existingUser, string $password): array
     {
         // 信箱已經被註冊，但是密碼欄位不為空值，回傳錯誤（代表首次註冊是本地註冊）
-        if (! empty($validatedData['password'])) {
+        if (! empty($password)) {
             return $this->formatResponse('error', 'The email has already been taken.', Response::HTTP_CONFLICT);
         }
 
         // 信箱已經被註冊，但是密碼欄位為空值，更新密碼（代表首次註冊是使用第三方登入）
-        $existingUser->password = $validatedData['password'];
+        $existingUser->password = $password;
         $existingUser->save();
 
         return $this->formatResponse('success', 'Password updated successful!', Response::HTTP_OK);
@@ -69,7 +69,7 @@ class RegisterService
     }
 
     // 檢查使用者名稱是否符合善良風俗
-    private function validateUserName(string $username)
+    private function validateUserName(string $username): ?array
     {
         // 如果使用者名稱不符合善良風俗，回傳錯誤，如果符合善良風俗，回傳null
         if (! $this->assistant->isUsernameDecent($username)) {
@@ -79,7 +79,7 @@ class RegisterService
         return null;
     }
 
-    private function generateProfileImage(string $selfProfile)
+    private function generateProfileImage(string $selfProfile): string
     {
         return $this->assistant->visualize($selfProfile);
     }

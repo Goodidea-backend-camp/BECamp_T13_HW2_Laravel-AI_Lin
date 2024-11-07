@@ -6,6 +6,7 @@ use App\Http\Requests\RegisterRequest;
 use App\Services\EmailVerificationService;
 use App\Services\RegisterService;
 use App\Traits\ApiResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class RegisterController extends Controller
 {
@@ -18,7 +19,7 @@ class RegisterController extends Controller
     ) {
     }
 
-    public function register(RegisterRequest $request)
+    public function register(RegisterRequest $request): Response
     {
         $validatedData = $request->validated();
 
@@ -30,7 +31,7 @@ class RegisterController extends Controller
             : $this->error($result['message'], $result['statusCode']);
     }
 
-    public function verifyEmail($id, $hash)
+    public function verifyEmail(int $id, string $hash): Response
     {
         $result = $this->emailVerificationService->verifyEmail($id, $hash);
 

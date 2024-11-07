@@ -17,16 +17,17 @@ class GoogleAuthController extends Controller
     }
 
     //重定向至Google登入頁面
-    public function redirectToGoogle()
+    public function redirectToGoogle(): Response
     {
         try {
+            //參考https://laravel.com/docs/11.x/socialite#stateless-authentication中關於無狀態Api的用法
             return Socialite::driver('google')->stateless()->redirect();
         } catch (\Exception $e) {
             return $this->error($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
-    public function handleGoogleCallback()
+    public function handleGoogleCallback(): Response
     {
         $googleUser = Socialite::driver('google')->stateless()->user();
 
@@ -44,7 +45,7 @@ class GoogleAuthController extends Controller
     }
 
     //使用者使用Google第三方登入初次註冊帳號時，需補填自我介紹
-    public function handleGoogleSetup(SetupGoogleUserRequest $request)
+    public function handleGoogleSetup(SetupGoogleUserRequest $request): Response
     {
         $validatedData = $request->validated();
         $user = auth()->user();

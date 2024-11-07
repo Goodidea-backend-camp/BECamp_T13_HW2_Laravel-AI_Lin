@@ -55,7 +55,7 @@ class Assistant
         ]);
     }
 
-    public function visualize(string $description, array $options = [])
+    public function visualize(string $description, array $options = []): string
     {
         $this->addMessage($description);
 
@@ -92,10 +92,10 @@ class Assistant
     }
 
     //審核使用者名稱是否符合善良風俗
-    public function isUsernameDecent($username): bool
+    public function isUsernameDecent(string $message): bool
     {
         $response = $this->client->moderations()->create([
-            'input' => $username,
+            'input' => $message,
         ]);
 
         // 如果flagged值為false，表示名稱符合善良風俗

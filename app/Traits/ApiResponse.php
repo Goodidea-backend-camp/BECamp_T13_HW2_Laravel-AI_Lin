@@ -2,9 +2,11 @@
 
 namespace App\Traits;
 
+use Illuminate\Http\JsonResponse;
+
 trait ApiResponse
 {
-    public function success($message, $statusCode = 200)
+    public function success(string $message, int $statusCode = 200): JsonResponse
     {
         return response()->json([
             'status' => 'success',
@@ -13,7 +15,7 @@ trait ApiResponse
 
     }
 
-    public function error($message, $statuscode = 400)
+    public function error(string $message, int $statuscode = 400): JsonResponse
     {
         return response()->json([
             'status' => 'error',
@@ -21,7 +23,7 @@ trait ApiResponse
         ], $statuscode);
     }
 
-    public function responseWithToken($message, $data, $statusCode = 200)
+    public function responseWithToken(string $message, array $data, int $statusCode = 200): JsonResponse
     {
         return response()->json([
             'status' => 'success',

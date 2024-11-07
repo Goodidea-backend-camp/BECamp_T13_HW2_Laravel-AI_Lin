@@ -10,7 +10,7 @@ class EmailVerificationService
 {
     use ServiceResponse;
 
-    public function verifyEmail($id, $hash): array
+    public function verifyEmail(int $id, string $hash): array
     {
         // 進入DB並透過ID搜尋使用者
         $user = $this->findUserById($id);
@@ -35,7 +35,7 @@ class EmailVerificationService
         return $this->formatResponse('success', 'Email verified successfully.', Response::HTTP_OK);
     }
 
-    private function findUserById($id)
+    private function findUserById(int $id): User|array
     {
         try {
             return User::findOrFail($id);
@@ -44,7 +44,7 @@ class EmailVerificationService
         }
     }
 
-    private function verifyEmailHash($user, $hash): bool
+    private function verifyEmailHash(User $user, string $hash): bool
     {
         return hash_equals((string) $hash, sha1($user->getEmailForVerification()));
     }

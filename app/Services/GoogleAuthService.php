@@ -6,6 +6,8 @@ use App\AI\Assistant;
 use App\Models\User;
 use App\Models\UserSocialAccount;
 use App\Traits\ServiceResponse;
+use Laravel\Sanctum\NewAccessToken;
+use Laravel\Socialite\Contracts\User as SocialiteUser;
 use Symfony\Component\HttpFoundation\Response;
 
 class GoogleAuthService
@@ -19,7 +21,7 @@ class GoogleAuthService
     }
 
     // 處理Google第三方登入資料
-    public function handleCallback($googleUser): array
+    public function handleCallback(SocialiteUser $googleUser): array
     {
         try {
             //查看第三方登入表是否已建立該使用者
@@ -47,7 +49,7 @@ class GoogleAuthService
     }
 
     // 使用者使用Google第三方登入初次註冊帳號時，需補填自我介紹
-    public function setupSelfProfile($user, $selfProfile): array
+    public function setupSelfProfile(User $user, string $selfProfile): array
     {
         try {
             $profileImagePath = $this->assistant->visualize($selfProfile);
@@ -62,7 +64,7 @@ class GoogleAuthService
         }
     }
 
-    private function findExistingUserSocailAccount($googleUser): ?UserSocialAccount
+    private function findExistingUserSocailAccount(SocialiteUser $googleUser): ?UserSocialAccount
     {
         return UserSocialAccount::firstWhere([
             'provider_id' => $googleUser->id,
@@ -70,13 +72,13 @@ class GoogleAuthService
         ]);
     }
 
-    private function findExistingUser($email): ?user
+    private function findExistingUser(string $email): ?user
     {
         return User::firstWhere('email', $email);
     }
 
     // 若是已建立帳號的使用者，直接登入並發給token
-    private function loginExistingUser($user)
+    private function loginExistingUser(User $user)
     {
         auth()->login($user);
 
@@ -85,7 +87,7 @@ class GoogleAuthService
         );
     }
 
-    private function linkSocialAccountToUser(User $user, $googleUser)
+    private function linkSocialAccountToUser(User $user, SocialiteUser $googleUser): void
     {
         $userSocialAccount = new UserSocialAccount();
         $userSocialAccount->provider_id = $googleUser->id;
@@ -96,7 +98,7 @@ class GoogleAuthService
     }
 
     // 新的使用者使用Google第三方登入註冊時，建立新帳號，並發給token
-    private function createNewUser($googleUser)
+    private function createNewUser(SocialiteUser $googleUser): array
     {
         $user = new User();
         $user->name = $googleUser->name;
@@ -120,7 +122,7 @@ class GoogleAuthService
         );
     }
 
-    private function createTokenForUser($user)
+    private function createTokenForUser(User $user): NewAccessToken
     {
         return $user->createToken('API Token for '.$user->email, ['*'], now()->addMonth());
     }

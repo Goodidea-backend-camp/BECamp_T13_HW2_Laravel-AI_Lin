@@ -16,10 +16,9 @@ class AuthController extends Controller
     {
     }
 
-    public function login(LoginRequest $request)
+    public function login(LoginRequest $request): Response
     {
         $validatedData = $request->validated();
-
         // 將請求資料透過 AuthService 進行處理
         $result = $this->authService->login($validatedData);
 
@@ -29,7 +28,7 @@ class AuthController extends Controller
 
     }
 
-    public function logout(Request $request)
+    public function logout(Request $request): Response
     {
         if (! $request->user()->currentAccessToken()->delete()) {
             return $this->error('Logout failed', Response::HTTP_INTERNAL_SERVER_ERROR);
