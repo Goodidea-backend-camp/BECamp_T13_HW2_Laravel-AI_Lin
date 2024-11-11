@@ -21,8 +21,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         //Google第三方登入的設定
-        Event::listen(function (\SocialiteProviders\Manager\SocialiteWasCalled $event) {
-            $event->extendSocialite('google', \SocialiteProviders\Google\Provider::class);
+        Event::listen(function (\SocialiteProviders\Manager\SocialiteWasCalled $socialiteWasCalled) {
+            $socialiteWasCalled->extendSocialite('google', \SocialiteProviders\Google\Provider::class);
         });
     }
 }

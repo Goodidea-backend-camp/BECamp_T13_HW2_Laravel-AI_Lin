@@ -22,7 +22,7 @@ class RegisterService
             $existingUser = $this->findExistingUserByEmail($validatedData['email']);
 
             // 信箱已經被註冊
-            if ($existingUser) {
+            if ($existingUser instanceof \App\Models\User) {
                 return $this->handleExistingUserPassword($existingUser, $validatedData['password']);
             }
 
@@ -43,8 +43,8 @@ class RegisterService
             $user->sendEmailVerificationNotification();
 
             return $this->formatResponse('success', 'Register successful.Please check your email for verification.', Response::HTTP_OK);
-        } catch (\Exception $e) {
-            return $this->formatResponse('error', $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $exception) {
+            return $this->formatResponse('error', $exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 

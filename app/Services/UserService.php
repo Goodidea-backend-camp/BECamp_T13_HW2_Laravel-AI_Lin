@@ -32,11 +32,13 @@ class UserService
         if (isset($data['name'])) {
             $user->name = $data['name'];
         }
+
         if (isset($data['self_profile'])) {
             $profile_image_path = $this->generateProfileImage($data['self_profile']);
             $user->self_profile = $data['self_profile'];
             $user->profile_image_path = $profile_image_path;
         }
+
         $user->save();
 
         return $user;

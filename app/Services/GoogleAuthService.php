@@ -28,14 +28,15 @@ class GoogleAuthService
             $existingUserSocialAccount = $this->findExistingUserSocailAccount($googleUser);
 
             // 如果存在，直接登入並發給token
-            if ($existingUserSocialAccount) {
+            if ($existingUserSocialAccount instanceof \App\Models\UserSocialAccount) {
                 return $this->loginExistingUser($existingUserSocialAccount->user);
             }
+
             // 第三方登入表不存在資料，檢查是否有使用本地註冊
             $existingUser = $this->findExistingUser($googleUser->email);
 
             // 如果有使用本地註冊，在第三方登入表建立資料並與User表建立關聯，並進行登入
-            if ($existingUser) {
+            if ($existingUser instanceof \App\Models\User) {
                 $this->linkSocialAccountToUser($existingUser, $googleUser);
 
                 return $this->loginExistingUser($existingUser);
@@ -43,8 +44,8 @@ class GoogleAuthService
 
             // 如果都沒有資料，则建立新帳號
             return $this->createNewUser($googleUser);
-        } catch (\Exception $e) {
-            return $this->formatResponse('error', $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $exception) {
+            return $this->formatResponse('error', $exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -59,8 +60,8 @@ class GoogleAuthService
             $user->save();
 
             return $this->formatResponse('success', 'Self Profile created successfully', Response::HTTP_OK);
-        } catch (\Exception $e) {
-            return $this->formatResponse('error', $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $exception) {
+            return $this->formatResponse('error', $exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -78,7 +79,7 @@ class GoogleAuthService
     }
 
     // 若是已建立帳號的使用者，直接登入並發給token
-    private function loginExistingUser(User $user)
+    private function loginExistingUser(User $user): array
     {
         auth()->login($user);
 
@@ -87,31 +88,31 @@ class GoogleAuthService
         );
     }
 
-    private function linkSocialAccountToUser(User $user, SocialiteUser $googleUser): void
+    private function linkSocialAccountToUser(User $user, SocialiteUser $socialiteUser): void
     {
         $userSocialAccount = new UserSocialAccount();
-        $userSocialAccount->provider_id = $googleUser->id;
+        $userSocialAccount->provider_id = $socialiteUser->id;
         $userSocialAccount->provider = self::PROVIDER_NAME;
-        $userSocialAccount->email = $googleUser->email;
+        $userSocialAccount->email = $socialiteUser->email;
         $userSocialAccount->user_id = $user->id;
         $userSocialAccount->save();
     }
 
     // 新的使用者使用Google第三方登入註冊時，建立新帳號，並發給token
-    private function createNewUser(SocialiteUser $googleUser): array
+    private function createNewUser(SocialiteUser $socialiteUser): array
     {
         $user = new User();
-        $user->name = $googleUser->name;
-        $user->email = $googleUser->email;
+        $user->name = $socialiteUser->name;
+        $user->email = $socialiteUser->email;
         $user->email_verified_at = now();
         $user->self_profile = '';
         $user->profile_image_path = '';
         $user->save();
 
         $userSocialAccount = new UserSocialAccount();
-        $userSocialAccount->provider_id = $googleUser->id;
+        $userSocialAccount->provider_id = $socialiteUser->id;
         $userSocialAccount->provider = self::PROVIDER_NAME;
-        $userSocialAccount->email = $googleUser->email;
+        $userSocialAccount->email = $socialiteUser->email;
         $userSocialAccount->user_id = $user->id;
         $userSocialAccount->save();
 

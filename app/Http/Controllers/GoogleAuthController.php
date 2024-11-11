@@ -22,8 +22,8 @@ class GoogleAuthController extends Controller
         try {
             //參考https://laravel.com/docs/11.x/socialite#stateless-authentication中關於無狀態Api的用法
             return Socialite::driver('google')->stateless()->redirect();
-        } catch (\Exception $e) {
-            return $this->error($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $exception) {
+            return $this->error($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 

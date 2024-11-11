@@ -39,14 +39,14 @@ class EmailVerificationService
     {
         try {
             return User::findOrFail($id);
-        } catch (\Exception $e) {
-            return $this->formatResponse('error', $e->getMessage(), Response::HTTP_NOT_FOUND);
+        } catch (\Exception $exception) {
+            return $this->formatResponse('error', $exception->getMessage(), Response::HTTP_NOT_FOUND);
         }
     }
 
     private function verifyEmailHash(User $user, string $hash): bool
     {
-        return hash_equals((string) $hash, sha1($user->getEmailForVerification()));
+        return hash_equals($hash, sha1($user->getEmailForVerification()));
     }
 
     private function isEmailAlreadyVerified(User $user): bool
