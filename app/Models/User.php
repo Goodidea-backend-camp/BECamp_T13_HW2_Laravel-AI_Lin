@@ -14,6 +14,7 @@ class User extends Authenticatable implements MustVerifyEmail
     use HasApiTokens;
     use HasFactory;
     use Notifiable;
+
     /**
      * The attributes that should be hidden for serialization.
      *
