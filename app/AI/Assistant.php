@@ -94,11 +94,11 @@ class Assistant
     //審核使用者名稱是否符合善良風俗
     public function isUsernameDecent(string $message): bool
     {
-        $response = $this->client->moderations()->create([
+        $createResponse = $this->client->moderations()->create([
             'input' => $message,
         ]);
 
         // 如果flagged值為false，表示名稱符合善良風俗
-        return $response->results[0]->flagged === false;
+        return $createResponse->results[0]->flagged === false;
     }
 }

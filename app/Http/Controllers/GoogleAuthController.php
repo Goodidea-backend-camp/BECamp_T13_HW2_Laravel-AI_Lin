@@ -45,9 +45,9 @@ class GoogleAuthController extends Controller
     }
 
     //使用者使用Google第三方登入初次註冊帳號時，需補填自我介紹
-    public function handleGoogleSetup(SetupGoogleUserRequest $request): Response
+    public function handleGoogleSetup(SetupGoogleUserRequest $setupGoogleUserRequest): Response
     {
-        $validatedData = $request->validated();
+        $validatedData = $setupGoogleUserRequest->validated();
         $user = auth()->user();
 
         //使用GoogleAuthService處理Google使用者補填自我介紹

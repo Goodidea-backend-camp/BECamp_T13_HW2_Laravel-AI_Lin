@@ -16,9 +16,9 @@ class AuthController extends Controller
     {
     }
 
-    public function login(LoginRequest $request): Response
+    public function login(LoginRequest $loginRequest): Response
     {
-        $validatedData = $request->validated();
+        $validatedData = $loginRequest->validated();
         // 將請求資料透過 AuthService 進行處理
         $result = $this->authService->login($validatedData);
 

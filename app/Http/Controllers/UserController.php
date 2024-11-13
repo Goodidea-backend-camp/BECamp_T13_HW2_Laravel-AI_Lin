@@ -33,10 +33,10 @@ class UserController extends Controller
         }
     }
 
-    public function update(UpdateUserRequest $request, int $userId): JsonResponse|UserResource
+    public function update(UpdateUserRequest $updateUserRequest, int $userId): JsonResponse|UserResource
     {
         try {
-            $validatedData = $request->validated();
+            $validatedData = $updateUserRequest->validated();
             $result = $this->userService->updateUserData($userId, $validatedData);
 
             return new UserResource($result);

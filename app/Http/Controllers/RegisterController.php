@@ -19,9 +19,9 @@ class RegisterController extends Controller
     ) {
     }
 
-    public function register(RegisterRequest $request): Response
+    public function register(RegisterRequest $registerRequest): Response
     {
-        $validatedData = $request->validated();
+        $validatedData = $registerRequest->validated();
 
         //將請求資料透過 RegisterService 進行處理
         $result = $this->registerService->registerUser($validatedData);

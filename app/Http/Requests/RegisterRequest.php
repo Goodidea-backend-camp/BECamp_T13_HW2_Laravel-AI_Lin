@@ -40,7 +40,7 @@ class RegisterRequest extends FormRequest
     {
         $errorMessage = implode(' ', $validator->errors()->all());
 
-        $response = $this->error($errorMessage, Response::HTTP_UNPROCESSABLE_ENTITY);
-        throw new HttpResponseException($response);
+        $jsonResponse = $this->error($errorMessage, Response::HTTP_UNPROCESSABLE_ENTITY);
+        throw new HttpResponseException($jsonResponse);
     }
 }

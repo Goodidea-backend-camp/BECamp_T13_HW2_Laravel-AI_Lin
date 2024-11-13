@@ -56,7 +56,7 @@ class RegisterService
     private function handleExistingUserPassword(User $existingUser, string $password): array
     {
         // 信箱已經被註冊，但是密碼欄位不為空值，回傳錯誤（代表首次註冊是本地註冊）
-        if (! empty($password)) {
+        if ($password !== '') {
             return $this->formatResponse('error', 'The email has already been taken.', Response::HTTP_CONFLICT);
         }
 
