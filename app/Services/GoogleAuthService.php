@@ -49,22 +49,6 @@ class GoogleAuthService
         }
     }
 
-    // 使用者使用Google第三方登入初次註冊帳號時，需補填自我介紹
-    public function setupSelfProfile(User $user, string $selfProfile): array
-    {
-        try {
-            $profileImagePath = $this->assistant->visualize($selfProfile);
-
-            $user->self_profile = $selfProfile;
-            $user->profile_image_path = $profileImagePath;
-            $user->save();
-
-            return $this->formatResponse('success', 'Self Profile created successfully', Response::HTTP_OK);
-        } catch (\Exception $exception) {
-            return $this->formatResponse('error', $exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
-
     private function findExistingUserSocailAccount(SocialiteUser $socialiteUser): ?UserSocialAccount
     {
         return UserSocialAccount::firstWhere([
@@ -126,5 +110,24 @@ class GoogleAuthService
     private function createTokenForUser(User $user): NewAccessToken
     {
         return $user->createToken('API Token for '.$user->email, ['*'], now()->addMonth());
+    }
+
+    /**
+     * @param  User  $user
+     *                      使用者使用Google第三方登入初次註冊帳號時，需補填自我介紹
+     */
+    public function setupSelfProfile(User $user, string $selfProfile): array
+    {
+        try {
+            $profileImagePath = $this->assistant->visualize($selfProfile);
+
+            $user->self_profile = $selfProfile;
+            $user->profile_image_path = $profileImagePath;
+            $user->save();
+
+            return $this->formatResponse('success', 'Self Profile created successfully', Response::HTTP_OK);
+        } catch (\Exception $exception) {
+            return $this->formatResponse('error', $exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }

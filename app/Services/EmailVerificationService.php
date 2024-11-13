@@ -15,7 +15,7 @@ class EmailVerificationService
         // 進入DB並透過ID搜尋使用者
         $user = $this->findUserById($id);
 
-        if ($user instanceof \Exception) {
+        if (! $user instanceof User) {
             return $user;
         }
 

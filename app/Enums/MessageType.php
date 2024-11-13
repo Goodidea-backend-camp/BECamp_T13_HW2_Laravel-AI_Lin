@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum MessageType: int
+enum MessageType: string
 {
     case TEXT = 'text';
     case IMAGE = 'image';
