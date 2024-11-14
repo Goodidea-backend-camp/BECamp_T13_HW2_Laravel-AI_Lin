@@ -3,10 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Traits\ApiResponse;
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Symfony\Component\HttpFoundation\Response;
 
 class SetupGoogleUserRequest extends FormRequest
 {
@@ -30,13 +27,5 @@ class SetupGoogleUserRequest extends FormRequest
         return [
             'self_profile' => ['required', 'string'],
         ];
-    }
-
-    protected function failedValidation(Validator $validator)
-    {
-        $errorMessage = implode(' ', $validator->errors()->all());
-
-        $jsonResponse = $this->error($errorMessage, Response::HTTP_UNPROCESSABLE_ENTITY);
-        throw new HttpResponseException($jsonResponse);
     }
 }

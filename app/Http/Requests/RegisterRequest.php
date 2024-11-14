@@ -3,10 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Traits\ApiResponse;
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Http\Response;
 
 class RegisterRequest extends FormRequest
 {
@@ -33,14 +30,5 @@ class RegisterRequest extends FormRequest
             'password' => ['required', 'string'],
             'self_profile' => ['required', 'string'],
         ];
-    }
-
-    // 自定義錯誤訊息
-    protected function failedValidation(Validator $validator)
-    {
-        $errorMessage = implode(' ', $validator->errors()->all());
-
-        $jsonResponse = $this->error($errorMessage, Response::HTTP_UNPROCESSABLE_ENTITY);
-        throw new HttpResponseException($jsonResponse);
     }
 }
