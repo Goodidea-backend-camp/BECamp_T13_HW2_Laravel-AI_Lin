@@ -6,6 +6,7 @@ use App\Http\Requests\LoginRequest;
 use App\Services\AuthService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
@@ -16,7 +17,7 @@ class AuthController extends Controller
     {
     }
 
-    public function login(LoginRequest $loginRequest): Response
+    public function login(LoginRequest $loginRequest): JsonResponse
     {
         $validatedData = $loginRequest->validated();
         // 將請求資料透過 AuthService 進行處理
@@ -28,11 +29,9 @@ class AuthController extends Controller
 
     }
 
-    public function logout(Request $request): Response
+    public function logout(Request $request): JsonResponse
     {
-        if (! $request->user()->currentAccessToken()->delete()) {
-            return $this->error('Logout failed', Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        $request->user()->currentAccessToken()->delete();
 
         return $this->success('Logout successfully', Response::HTTP_OK);
     }

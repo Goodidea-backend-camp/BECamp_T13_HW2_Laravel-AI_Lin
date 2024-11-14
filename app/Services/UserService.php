@@ -14,6 +14,7 @@ class UserService
     {
     }
 
+    // 取得使用者資料
     public function getUserData(int $userId): User
     {
         $user = User::findorfail($userId);
@@ -23,6 +24,7 @@ class UserService
         return $user;
     }
 
+    // 更新使用者資料（名稱、自我介紹），並根據更新後自我介紹生成新的大頭貼
     public function updateUserData(int $userId, array $data): User
     {
         $user = User::findorfail($userId);
@@ -44,6 +46,7 @@ class UserService
         return $user;
     }
 
+    // 將使用者的自我介紹透過 openai 的 Image API 來生成大頭貼
     private function generateProfileImage(string $selfProfile): string
     {
         return $this->assistant->visualize($selfProfile);

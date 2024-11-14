@@ -17,35 +17,31 @@ class RegisterService
 
     public function registerUser(array $validatedData): array
     {
-        try {
-            // 確認信箱是否已經被註冊
-            $existingUser = $this->findExistingUserByEmail($validatedData['email']);
+        // 確認信箱是否已經被註冊
+        $existingUser = $this->findExistingUserByEmail($validatedData['email']);
 
-            // 信箱已經被註冊
-            if ($existingUser instanceof \App\Models\User) {
-                return $this->handleExistingUserPassword($existingUser, $validatedData['password']);
-            }
-
-            // 確認使用者名稱是否符合善良風俗
-            $usernameValidationResult = $this->validateUserName($validatedData['name']);
-
-            if (! is_null($usernameValidationResult)) {
-                return $this->formatResponse('error', $usernameValidationResult['message'], Response::HTTP_UNPROCESSABLE_ENTITY);
-            }
-
-            //將使用者自我介紹透過 openai 的 Image API 來生成大頭貼
-            $profile_image_path = $this->generateProfileImage($validatedData['self_profile']);
-
-            // 將使用者資料存入資料庫
-            $user = $this->storeNewUser($validatedData, $profile_image_path);
-
-            // 寄送驗證信
-            $user->sendEmailVerificationNotification();
-
-            return $this->formatResponse('success', 'Register successful.Please check your email for verification.', Response::HTTP_OK);
-        } catch (\Exception $exception) {
-            return $this->formatResponse('error', $exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        // 信箱已經被註冊
+        if ($existingUser instanceof \App\Models\User) {
+            return $this->handleExistingUserPassword($existingUser, $validatedData['password']);
         }
+
+        // 確認使用者名稱是否符合善良風俗
+        $usernameValidationResult = $this->validateUserName($validatedData['name']);
+
+        if (! is_null($usernameValidationResult)) {
+            return $this->formatResponse('error', $usernameValidationResult['message'], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        //將使用者自我介紹透過 openai 的 Image API 來生成大頭貼
+        $profile_image_path = $this->generateProfileImage($validatedData['self_profile']);
+
+        // 將使用者資料存入資料庫
+        $user = $this->storeNewUser($validatedData, $profile_image_path);
+
+        // 寄送驗證信
+        $user->sendEmailVerificationNotification();
+
+        return $this->formatResponse('success', 'Register successful.Please check your email for verification.', Response::HTTP_OK);
     }
 
     private function findExistingUserByEmail(string $email): ?user

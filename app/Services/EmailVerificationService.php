@@ -15,10 +15,6 @@ class EmailVerificationService
         // 進入DB並透過ID搜尋使用者
         $user = $this->findUserById($id);
 
-        if (! $user instanceof User) {
-            return $user;
-        }
-
         // 驗證使用者 ID 和 hash 是否匹配
         if (! $this->verifyEmailHash($user, $hash)) {
             return $this->formatResponse('error', 'Invalid email verification link.', Response::HTTP_UNAUTHORIZED);
@@ -37,11 +33,7 @@ class EmailVerificationService
 
     private function findUserById(int $id): User|array
     {
-        try {
-            return User::findOrFail($id);
-        } catch (\Exception $exception) {
-            return $this->formatResponse('error', $exception->getMessage(), Response::HTTP_NOT_FOUND);
-        }
+        return User::findOrFail($id);
     }
 
     private function verifyEmailHash(User $user, string $hash): bool

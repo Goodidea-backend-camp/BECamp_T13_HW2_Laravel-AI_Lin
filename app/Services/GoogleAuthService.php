@@ -23,30 +23,26 @@ class GoogleAuthService
     // 處理Google第三方登入資料
     public function handleCallback(SocialiteUser $socialiteUser): array
     {
-        try {
-            //查看第三方登入表是否已建立該使用者
-            $existingUserSocialAccount = $this->findExistingUserSocailAccount($socialiteUser);
+        //查看第三方登入表是否已建立該使用者
+        $existingUserSocialAccount = $this->findExistingUserSocailAccount($socialiteUser);
 
-            // 如果存在，直接登入並發給token
-            if ($existingUserSocialAccount instanceof \App\Models\UserSocialAccount) {
-                return $this->loginExistingUser($existingUserSocialAccount->user);
-            }
-
-            // 第三方登入表不存在資料，檢查是否有使用本地註冊
-            $existingUser = $this->findExistingUser($socialiteUser->email);
-
-            // 如果有使用本地註冊，在第三方登入表建立資料並與User表建立關聯，並進行登入
-            if ($existingUser instanceof \App\Models\User) {
-                $this->linkSocialAccountToUser($existingUser, $socialiteUser);
-
-                return $this->loginExistingUser($existingUser);
-            }
-
-            // 如果都沒有資料，则建立新帳號
-            return $this->createNewUser($socialiteUser);
-        } catch (\Exception $exception) {
-            return $this->formatResponse('error', $exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        // 如果存在，直接登入並發給token
+        if ($existingUserSocialAccount instanceof \App\Models\UserSocialAccount) {
+            return $this->loginExistingUser($existingUserSocialAccount->user);
         }
+
+        // 第三方登入表不存在資料，檢查是否有使用本地註冊
+        $existingUser = $this->findExistingUser($socialiteUser->email);
+
+        // 如果有使用本地註冊，在第三方登入表建立資料並與User表建立關聯，並進行登入
+        if ($existingUser instanceof \App\Models\User) {
+            $this->linkSocialAccountToUser($existingUser, $socialiteUser);
+
+            return $this->loginExistingUser($existingUser);
+        }
+
+        // 如果都沒有資料，则建立新帳號
+        return $this->createNewUser($socialiteUser);
     }
 
     private function findExistingUserSocailAccount(SocialiteUser $socialiteUser): ?UserSocialAccount
@@ -118,16 +114,12 @@ class GoogleAuthService
      */
     public function setupSelfProfile(User $user, string $selfProfile): array
     {
-        try {
-            $profileImagePath = $this->assistant->visualize($selfProfile);
+        $profileImagePath = $this->assistant->visualize($selfProfile);
 
-            $user->self_profile = $selfProfile;
-            $user->profile_image_path = $profileImagePath;
-            $user->save();
+        $user->self_profile = $selfProfile;
+        $user->profile_image_path = $profileImagePath;
+        $user->save();
 
-            return $this->formatResponse('success', 'Self Profile created successfully', Response::HTTP_OK);
-        } catch (\Exception $exception) {
-            return $this->formatResponse('error', $exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        return $this->formatResponse('success', 'Self Profile created successfully', Response::HTTP_OK);
     }
 }
