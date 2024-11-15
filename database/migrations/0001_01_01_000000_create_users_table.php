@@ -20,7 +20,6 @@ return new class extends Migration
             $table->text('self_profile');
             $table->text('profile_image_path');
             $table->boolean('is_premium')->default(false);
-            $table->unsignedTinyInteger('current_thread')->default(0);
             $table->rememberToken();
             $table->timestamps();
         });
