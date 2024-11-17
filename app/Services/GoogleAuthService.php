@@ -6,6 +6,7 @@ use App\AI\Assistant;
 use App\Models\User;
 use App\Models\UserSocialAccount;
 use App\Traits\ServiceResponse;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\NewAccessToken;
 use Laravel\Socialite\Contracts\User as SocialiteUser;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,7 +21,9 @@ class GoogleAuthService
     {
     }
 
-    // 處理Google第三方登入資料
+    /**
+     * 處理 Google 第三方登入資料
+     */
     public function handleCallback(SocialiteUser $socialiteUser): array
     {
         //查看第三方登入表是否已建立該使用者
@@ -32,7 +35,7 @@ class GoogleAuthService
         }
 
         // 第三方登入表不存在資料，檢查是否有使用本地註冊
-        $existingUser = $this->findExistingUser($socialiteUser->email);
+        $existingUser = $this->findExistingUser($socialiteUser->getEmail());
 
         // 如果有使用本地註冊，在第三方登入表建立資料並與User表建立關聯，並進行登入
         if ($existingUser instanceof \App\Models\User) {
@@ -47,21 +50,23 @@ class GoogleAuthService
 
     private function findExistingUserSocailAccount(SocialiteUser $socialiteUser): ?UserSocialAccount
     {
-        return UserSocialAccount::firstWhere([
-            'provider_id' => $socialiteUser->id,
-            'provider' => self::PROVIDER_NAME,
-        ]);
+        return UserSocialAccount::where('provider_id', $socialiteUser->getId())
+            ->where('provider', self::PROVIDER_NAME)
+            ->first();
     }
 
     private function findExistingUser(string $email): ?user
     {
-        return User::firstWhere('email', $email);
+        /** @var User|null $user */
+        $user = User::firstWhere('email', $email);
+
+        return $user;
     }
 
     // 若是已建立帳號的使用者，直接登入並發給token
     private function loginExistingUser(User $user): array
     {
-        auth()->login($user);
+        Auth::login($user);
 
         return $this->formatResponseWithToken('success', 'Authenticated', Response::HTTP_OK,
             ['token' => $this->createTokenForUser($user)->plainTextToken]
@@ -71,9 +76,9 @@ class GoogleAuthService
     private function linkSocialAccountToUser(User $user, SocialiteUser $socialiteUser): void
     {
         $userSocialAccount = new UserSocialAccount();
-        $userSocialAccount->provider_id = $socialiteUser->id;
+        $userSocialAccount->provider_id = $socialiteUser->getId();
         $userSocialAccount->provider = self::PROVIDER_NAME;
-        $userSocialAccount->email = $socialiteUser->email;
+        $userSocialAccount->email = $socialiteUser->getEmail();
         $userSocialAccount->user_id = $user->id;
         $userSocialAccount->save();
     }
@@ -82,21 +87,21 @@ class GoogleAuthService
     private function createNewUser(SocialiteUser $socialiteUser): array
     {
         $user = new User();
-        $user->name = $socialiteUser->name;
-        $user->email = $socialiteUser->email;
+        $user->name = $socialiteUser->getName();
+        $user->email = $socialiteUser->getEmail();
         $user->email_verified_at = now();
         $user->self_profile = '';
         $user->profile_image_path = '';
         $user->save();
 
         $userSocialAccount = new UserSocialAccount();
-        $userSocialAccount->provider_id = $socialiteUser->id;
+        $userSocialAccount->provider_id = $socialiteUser->getId();
         $userSocialAccount->provider = self::PROVIDER_NAME;
-        $userSocialAccount->email = $socialiteUser->email;
+        $userSocialAccount->email = $socialiteUser->getEmail();
         $userSocialAccount->user_id = $user->id;
         $userSocialAccount->save();
 
-        auth()->login($user);
+        Auth::login($user);
 
         return $this->formatResponseWithToken('success', 'Please fill in the self profile.', Response::HTTP_OK,
             ['token' => $this->createTokenForUser($user)->plainTextToken]
