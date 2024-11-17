@@ -31,7 +31,7 @@ class EmailVerificationService
         return $this->formatResponse('success', 'Email verified successfully.', Response::HTTP_OK);
     }
 
-    private function findUserById(int $id): User|array
+    private function findUserById(int $id): User
     {
         return User::findOrFail($id);
     }
