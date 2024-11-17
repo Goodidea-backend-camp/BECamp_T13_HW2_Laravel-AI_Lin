@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SetupGoogleUserRequest;
+use App\Models\User;
 use App\Services\GoogleAuthService;
 use App\Traits\ApiResponse;
 use Laravel\Socialite\Facades\Socialite;
+use Laravel\Socialite\Two\GoogleProvider;
 use Symfony\Component\HttpFoundation\Response;
 
 class GoogleAuthController extends Controller
@@ -19,12 +21,17 @@ class GoogleAuthController extends Controller
     //重定向至Google登入頁面
     public function redirectToGoogle(): Response
     {
-        return Socialite::driver('google')->stateless()->redirect();
+        /** @var GoogleProvider $googleProvider */
+        $googleProvider = Socialite::driver('google');
+
+        return $googleProvider->stateless()->redirect();
     }
 
     public function handleGoogleCallback(): Response
     {
-        $googleUser = Socialite::driver('google')->stateless()->user();
+        /** @var GoogleProvider $googleProvider */
+        $googleProvider = Socialite::driver('google');
+        $googleUser = $googleProvider->stateless()->user();
 
         //使用GoogleAuthService處理Google使用者資料
         $result = $this->googleAuthService->handleCallback($googleUser);
@@ -43,6 +50,7 @@ class GoogleAuthController extends Controller
     public function handleGoogleSetup(SetupGoogleUserRequest $setupGoogleUserRequest): Response
     {
         $validatedData = $setupGoogleUserRequest->validated();
+        /** @var User $user */
         $user = auth()->user();
 
         //使用GoogleAuthService處理Google使用者補填自我介紹
