@@ -3,12 +3,26 @@
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+/**
+ * @property int $id
+ * @property string $email
+ * @property string $name
+ * @property string $password
+ * @property string $self_profile
+ * @property string $profile_image_path
+ * @property bool $is_premium
+ * @property \Illuminate\Support\Carbon $email_verified_at
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|User firstWhere(string $column, mixed $value)
+ * @method static User|Builder findOrFail(int $id)
+ */
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens;

@@ -5,6 +5,12 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property string $name
+ * @property string $email
+ * @property text $self_profile
+ * @property text $profile_image_path
+ */
 class UserResource extends JsonResource
 {
     /**
