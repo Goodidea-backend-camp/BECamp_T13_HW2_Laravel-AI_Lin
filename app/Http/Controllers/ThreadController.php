@@ -6,6 +6,7 @@ use App\Http\Requests\CreateThreadRequest;
 use App\Http\Requests\UpdateThreadRequest;
 use App\Http\Resources\ThreadResource;
 use App\Models\Thread;
+use App\Models\User;
 use App\Services\ThreadService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Resources\Json\ResourceCollection;
@@ -23,6 +24,7 @@ class ThreadController extends Controller
     //使用者可以查看自己的所有 Thread（只包括對話串名稱以及類型）
     public function index(): ResourceCollection
     {
+        /** @var User $user */
         $user = auth()->user();
         $result = $this->ThreadService->getAllThreads($user);
 
@@ -33,6 +35,7 @@ class ThreadController extends Controller
     public function store(CreateThreadRequest $createThreadRequest): ThreadResource|JsonResponse
     {
         $validatedData = $createThreadRequest->validated();
+        /** @var User $user */
         $user = auth()->user();
 
         //將請求資料透過 ThreadService 進行處理

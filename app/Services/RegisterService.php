@@ -44,9 +44,15 @@ class RegisterService
         return $this->formatResponse('success', 'Register successful.Please check your email for verification.', Response::HTTP_OK);
     }
 
-    private function findExistingUserByEmail(string $email): ?user
+    /**
+     * Find a user by email.
+     */
+    private function findExistingUserByEmail(string $email): ?User
     {
-        return User::firstWhere('email', $email);
+        /** @var User|null $user */
+        $user = User::firstWhere('email', $email);
+
+        return $user;
     }
 
     private function handleExistingUserPassword(User $existingUser, string $password): array

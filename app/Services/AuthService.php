@@ -20,7 +20,8 @@ class AuthService
         }
 
         // 取得目前登入的使用者
-        $user = Auth::user();
+        /** @var User $user */
+        $user = auth()->user();
 
         // 檢查使用者是否已驗證電子郵件
         if (! $user->hasVerifiedEmail()) {
