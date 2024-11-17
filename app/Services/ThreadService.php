@@ -28,6 +28,7 @@ class ThreadService
                 return $this->formatResponse('error', 'You have reached the maximum limit of 3 threads as a free user.Please upgrade to premium to create more threads.', Response::HTTP_FORBIDDEN);
             }
         }
+
         //將對話儲存至資料庫
         $thread = $this->storeNewThread($user, $data);
 
@@ -66,12 +67,11 @@ class ThreadService
         return $thread;
     }
 
-    //查看該使用者建立的所有對話串名稱
+    //查看該使用者建立的所有對話串名稱及類型
     public function getAllThreads(User $user)
     {
-        $threads = Thread::where('user_id', $user->id)->get();
+        return Thread::where('user_id', $user->id)->get();
 
-        return $threads;
     }
 
     //使用者更新對話串名稱

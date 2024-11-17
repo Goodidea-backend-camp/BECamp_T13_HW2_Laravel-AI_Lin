@@ -30,9 +30,9 @@ class ThreadController extends Controller
     }
 
     //使用者建立對話串
-    public function store(CreateThreadRequest $request): ThreadResource|JsonResponse
+    public function store(CreateThreadRequest $createThreadRequest): ThreadResource|JsonResponse
     {
-        $validatedData = $request->validated();
+        $validatedData = $createThreadRequest->validated();
         $user = auth()->user();
 
         //將請求資料透過 ThreadService 進行處理
@@ -44,9 +44,9 @@ class ThreadController extends Controller
     }
 
     //使用者更新對話串名稱
-    public function update(UpdateThreadRequest $request, Thread $thread)
+    public function update(UpdateThreadRequest $updateThreadRequest, Thread $thread): ThreadResource
     {
-        $validatedData = $request->validated();
+        $validatedData = $updateThreadRequest->validated();
         $result = $this->ThreadService->updateThreadTitle($thread, $validatedData);
 
         return new ThreadResource($result);

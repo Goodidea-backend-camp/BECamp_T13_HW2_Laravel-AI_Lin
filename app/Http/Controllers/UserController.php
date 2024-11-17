@@ -19,16 +19,16 @@ class UserController extends Controller
 
     public function show(int $userId): JsonResponse|UserResource
     {
-        $result = $this->userService->getUserData($userId);
+        $user = $this->userService->getUserData($userId);
 
-        return new UserResource($result);
+        return new UserResource($user);
     }
 
     public function update(UpdateUserRequest $updateUserRequest, int $userId): JsonResponse|UserResource
     {
         $validatedData = $updateUserRequest->validated();
-        $result = $this->userService->updateUserData($userId, $validatedData);
+        $user = $this->userService->updateUserData($userId, $validatedData);
 
-        return new UserResource($result);
+        return new UserResource($user);
     }
 }

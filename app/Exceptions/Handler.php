@@ -13,19 +13,24 @@ class Handler extends \Illuminate\Foundation\Exceptions\Handler
 {
     use ApiResponse;
 
-    public function render($request, Throwable $e)
+    public function render($request, Throwable $throwable)
     {
-        if ($e instanceof ModelNotFoundException) {
+        if ($throwable instanceof ModelNotFoundException) {
             return $this->error('File not found', Response::HTTP_NOT_FOUND);
-        } elseif ($e instanceof AuthorizationException) {
-            return $this->error($e->getMessage(), Response::HTTP_FORBIDDEN);
-        } elseif ($e instanceof ValidationException) {
-            $errorMessages = array_map(fn ($messages) => implode(' ', $messages), $e->errors());
+        }
+
+        if ($throwable instanceof AuthorizationException) {
+            return $this->error($throwable->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+
+        if ($throwable instanceof ValidationException) {
+            $errorMessages = array_map(fn ($messages): string => implode(' ', $messages), $throwable->errors());
             $formattedErrorMessage = implode(' ', $errorMessages);
 
             return $this->error($formattedErrorMessage, Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        return $this->error($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        return $this->error($throwable->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+
     }
 }
