@@ -14,6 +14,13 @@ class ThreadService
     use AuthorizesRequests;
     use ServiceResponse;
 
+    private $redis;
+
+    public function __construct()
+    {
+        $this->redis = Redis::connection();
+    }
+
     //免費用戶最大對話串數量
     public const MAX_FREE_THREADS = 3;
 
@@ -45,14 +52,14 @@ class ThreadService
     private function getTotalThreadCount(int $userId): int
     {
         // 取得儲存在redis中的總對話串數量，如果沒有則回傳0
-        $count = (int) Redis::get(sprintf('user:%d:total_thread_count', $userId)) ?? 0;
+        $count = $this->redis->get(sprintf('user:%d:total_thread_count', $userId));
 
-        return $count;
+        return $count !== null ? (int) $count : 0;
     }
 
     private function incrementTotalThreadCount(int $userId): void
     {
-        Redis::incr(sprintf('user:%d:total_thread_count', $userId));
+        $this->redis->incr(sprintf('user:%d:total_thread_count', $userId));
     }
 
     //將對話串儲存至資料庫
@@ -100,6 +107,6 @@ class ThreadService
     // 免費用戶在刪除對話時要同時刪除redis中的對話串數量
     private function decrementTotalThreadCount(int $userId): void
     {
-        Redis::decr(sprintf('user:%d:total_thread_count', $userId));
+        $this->redis->decr(sprintf('user:%d:total_thread_count', $userId));
     }
 }
