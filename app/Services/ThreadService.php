@@ -27,25 +27,31 @@ class ThreadService
     // 建立新對話串
     public function createThread(User $user, array $data): Thread|array
     {
-        //確認使用者是否為付費用戶
-        if (! $user->is_premium) {
-            //非付費用戶則檢查對話串數量
-            $totalThreadCount = $this->getTotalThreadCount($user->id);
-            if ($totalThreadCount >= self::MAX_FREE_THREADS) {
-                return $this->formatResponse('error', 'You have reached the maximum limit of 3 threads as a free user.Please upgrade to premium to create more threads.', Response::HTTP_FORBIDDEN);
-            }
+        return $user->is_premium
+        ? $this->createPremiumUserThread($user, $data)
+        : $this->createFreeUserThread($user, $data);
+    }
+
+    //建立免費用戶對話
+    private function createFreeUserThread(User $user, array $data): Thread|array
+    {
+        $totalThreadCount = $this->getTotalThreadCount($user->id);
+        if ($totalThreadCount >= self::MAX_FREE_THREADS) {
+            return $this->formatResponse('error', 'You have reached the maximum limit of 3 threads as a free user.Please upgrade to premium to create more threads.', Response::HTTP_FORBIDDEN);
         }
 
-        //將對話儲存至資料庫
         $thread = $this->storeNewThread($user, $data);
-
-        //增加免費用戶對話串數量
-        if (! $user->is_premium) {
-            $this->incrementTotalThreadCount($user->id);
-        }
+        $this->incrementTotalThreadCount($user->id);
 
         return $thread;
+    }
 
+    //建立付費用戶對話
+    private function createPremiumUserThread(User $user, array $data): Thread
+    {
+        $thread = $this->storeNewThread($user, $data);
+
+        return $thread;
     }
 
     //取得對話串數量
