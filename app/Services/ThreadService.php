@@ -49,9 +49,7 @@ class ThreadService
     //建立付費用戶對話
     private function createPremiumUserThread(User $user, array $data): Thread
     {
-        $thread = $this->storeNewThread($user, $data);
-
-        return $thread;
+        return $this->storeNewThread($user, $data);
     }
 
     //取得對話串數量
