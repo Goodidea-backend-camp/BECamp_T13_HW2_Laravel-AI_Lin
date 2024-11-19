@@ -33,7 +33,7 @@ class MessageService
 
         if ($thread->type === 'chat') {
             $historyMessages = $this->getHistoryMessages($threadId);
-            $response = $this->createChatMessage($historyMessages);
+            $response = $this->createAssistantChatMessage($historyMessages);
 
             return $this->storeAssistantChatMessage($thread, $response);
         }
@@ -68,7 +68,7 @@ class MessageService
     }
 
     //將用戶輸入的訊息和歷史訊息合併成一個字串，並傳給AI生成回應
-    private function createChatMessage(string $messages): string
+    private function createAssistantChatMessage(string $messages): string
     {
         return $this->assistant->send($messages, false);
     }
