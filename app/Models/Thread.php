@@ -12,8 +12,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $user_id
  * @property string $title
  * @property string $type
+ * @property int $id
  *
  * @method static Builder|Thread where(string $column, mixed $value)
+ * @method static Builder|Thread findOrFail(int $id)
  *
  * @property-read \App\Models\User $user
  */
