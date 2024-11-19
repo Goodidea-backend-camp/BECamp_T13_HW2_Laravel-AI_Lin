@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ThreadController;
 use App\Http\Controllers\UserController;
@@ -39,3 +40,6 @@ Route::middleware('auth:sanctum')->patch('/threads/{thread}', [ThreadController:
 
 //使用者刪除對話串
 Route::middleware('auth:sanctum')->delete('/threads/{thread}', [ThreadController::class, 'destroy']);
+
+// 使用者發送文字訊息，AI回覆文字訊息或是圖片
+Route::middleware('auth:sanctum')->post('/threads/{thread}/messages', [MessageController::class, 'store']);
