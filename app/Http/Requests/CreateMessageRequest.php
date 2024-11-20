@@ -23,6 +23,7 @@ class CreateMessageRequest extends FormRequest
     {
         return [
             'content' => ['required', 'string'],
+            'speech' => ['nullable', 'in:true'],
         ];
     }
 }
