@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $role
  * @property string $type
  * @property string $content
+ * @property string $file_path
  * @property-read \App\Models\Thread $thread
  *
  * @method static Builder|Message where(string $column, mixed $value)
