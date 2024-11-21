@@ -8,15 +8,22 @@ use App\Enums\MessageType;
 use App\Enums\ThreadType;
 use App\Models\Message;
 use App\Models\Thread;
+use App\Models\User;
 use App\Traits\ServiceResponse;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\Response;
 
 class MessageService
 {
     use AuthorizesRequests;
     use ServiceResponse;
+
+    private $redis;
+
+    private const MAX_FREE_Messages = 10;
 
     private const ROLE_MAPPING = [
         MessageRoleType::USER->value => 'user',
@@ -25,11 +32,23 @@ class MessageService
 
     public function __construct(private Assistant $assistant)
     {
+        $this->redis = Redis::connection();
     }
 
-    public function createMessage(int $threadId, array $data): ?Message
+    public function createMessage(int $threadId, array $data): Message|array
     {
         $thread = Thread::findOrFail($threadId);
+
+        $user = User::findOrFail($thread->user_id);
+
+        if (! $user->is_premium) {
+            $totalMessageCount = $this->getTotalMessageCount($threadId);
+            if ($totalMessageCount >= self::MAX_FREE_Messages) {
+                return $this->formatResponse('error', 'You have reached the maximum limit of 3 messages as a free user.Please upgrade to premium to create more messages.', Response::HTTP_FORBIDDEN);
+            }
+
+            $this->incrementTotalMessageCount($threadId);
+        }
 
         $this->storeUserMessage($thread, $data['content']);
 
@@ -43,6 +62,19 @@ class MessageService
         }
 
         return null;
+    }
+
+    private function getTotalMessageCount(int $threadId): int
+    {
+        // 取得儲存在redis中的總對話串數量，如果沒有則回傳0
+        $count = $this->redis->get(sprintf('thread:%d:total_message_count', $threadId));
+
+        return $count !== null ? (int) $count : 0;
+    }
+
+    private function incrementTotalMessageCount(int $threadId): void
+    {
+        $this->redis->incr(sprintf('thread:%d:total_message_count', $threadId));
     }
 
     //取得對話串中的所有歷史訊息並合併成一個字串

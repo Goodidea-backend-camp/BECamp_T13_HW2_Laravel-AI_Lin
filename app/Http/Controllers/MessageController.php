@@ -8,6 +8,7 @@ use App\Models\Message;
 use App\Services\MessageService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class MessageController extends Controller
 {
@@ -28,14 +29,16 @@ class MessageController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(CreateMessageRequest $createMessageRequest, int $threadId): MessageResource
+    public function store(CreateMessageRequest $createMessageRequest, int $threadId): MessageResource|JsonResponse
     {
         $validatedData = $createMessageRequest->validated();
 
         //將請求資料透過 MessageService 進行處理
         $result = $this->messageService->createMessage($threadId, $validatedData);
 
-        return new MessageResource($result);
+        return $result['status'] === 'error'
+            ? $this->error($result['message'], $result['statusCode'])
+            : new MessageResource($result);
 
     }
 
