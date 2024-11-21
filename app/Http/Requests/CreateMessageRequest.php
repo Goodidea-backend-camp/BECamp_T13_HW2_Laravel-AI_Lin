@@ -22,7 +22,7 @@ class CreateMessageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'content' => ['required', 'string'],
+            'content' => ['required', 'string', 'max:20000'],
             'speech' => ['nullable', 'in:true'],
         ];
     }
