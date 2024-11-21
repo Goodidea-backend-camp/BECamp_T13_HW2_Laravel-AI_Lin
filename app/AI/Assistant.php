@@ -35,7 +35,7 @@ class Assistant
         $this->addMessage($message, 'assistant');
 
         $response = $this->client->chat()->create([
-            'model' => 'gpt-3.5-turbo',
+            'model' => 'gpt-4o-mini',
             'messages' => $this->messages,
         ])->choices[0]->message->content;
 
