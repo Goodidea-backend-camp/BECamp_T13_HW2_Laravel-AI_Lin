@@ -62,9 +62,7 @@ class MessageService
                 : $this->handleChatResponse($thread, $historyMessages);
         }
 
-        if ($thread->type === ThreadType::IMAGE_GENERATION->value) {
-            return $this->handleImageGenerationResponse($thread, $historyMessages);
-        }
+        return $this->handleImageGenerationResponse($thread, $historyMessages);
 
     }
 
