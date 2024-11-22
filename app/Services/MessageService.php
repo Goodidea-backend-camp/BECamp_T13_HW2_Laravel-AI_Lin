@@ -35,7 +35,7 @@ class MessageService
         $this->redis = Redis::connection();
     }
 
-    public function createMessage(int $threadId, array $data): Message|array|null
+    public function createMessage(int $threadId, array $data): Message|array
     {
         $thread = Thread::findOrFail($threadId);
 
