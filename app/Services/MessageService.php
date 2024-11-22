@@ -51,9 +51,10 @@ class MessageService
         }
 
         $this->storeUserMessage($thread, $data['content']);
+        $historyMessages = $this->getHistoryMessages($threadId);
 
+        //根據thread的type判斷是生成文字回應還是圖片回應
         if ($thread->type === ThreadType::CHAT->value) {
-            $historyMessages = $this->getHistoryMessages($threadId);
 
             //根據傳入的data判斷是文字回應還是語音回應
             return isset($data['speech'])
@@ -61,17 +62,21 @@ class MessageService
                 : $this->handleChatResponse($thread, $historyMessages);
         }
 
-        return null;
+        if ($thread->type === ThreadType::IMAGE_GENERATION->value) {
+            return $this->handleImageGenerationResponse($thread, $historyMessages);
+        }
+
     }
 
+    // 取得儲存在redis中的總對話串數量，如果沒有則回傳0
     private function getTotalMessageCount(int $threadId): int
     {
-        // 取得儲存在redis中的總對話串數量，如果沒有則回傳0
         $count = $this->redis->get(sprintf('thread:%d:total_message_count', $threadId));
 
         return $count !== null ? (int) $count : 0;
     }
 
+    //增加Redis中的總訊息數量
     private function incrementTotalMessageCount(int $threadId): void
     {
         $this->redis->incr(sprintf('thread:%d:total_message_count', $threadId));
@@ -122,16 +127,30 @@ class MessageService
         return $this->storeAssistantSpeechMessage($thread, $response);
     }
 
-    //將用戶輸入的訊息和歷史訊息合併成一個字串，並傳給AI生成文字回應
+    // 取得AI圖片回應並將回應存入資料庫
+    private function handleImageGenerationResponse(Thread $thread, string $historyMessages): Message
+    {
+        $response = $this->generateAssistantImageMessage($historyMessages);
+
+        return $this->storeAssistantImageMessage($thread, $response);
+    }
+
+    //將訊息傳給AI生成文字回應
     private function generateAssistantChatMessage(string $messages): string
     {
         return $this->assistant->send($messages, false);
     }
 
-    //將用戶輸入的訊息和歷史訊息合併成一個字串，並傳給AI生成語音回應
+    //將訊息傳給AI生成語音回應
     private function generateAssistantSpeechMessage(string $messages): string
     {
         return $this->assistant->send($messages, true);
+    }
+
+    //將訊息傳給AI生成圖片回應
+    private function generateAssistantImageMessage(string $messages): string
+    {
+        return $this->assistant->visualize($messages);
     }
 
     //將用戶輸入的訊息儲存至資料庫
@@ -178,5 +197,11 @@ class MessageService
         Storage::disk('public')->put($filePath, $audioContent);
 
         return $this->storeAssistantMessage($thread, null, $filePath);
+    }
+
+    //將AI生成的圖片路徑儲存至資料庫
+    private function storeAssistantImageMessage(Thread $thread, string $imageFilePath): Message
+    {
+        return $this->storeAssistantMessage($thread, null, $imageFilePath);
     }
 }

@@ -16,7 +16,6 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->enum('type', array_column(ThreadType::cases(), 'value'));
-            $table->unsignedTinyInteger('current_message')->default(0);
             $table->timestamps();
             $table->foreignId('user_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
         });
