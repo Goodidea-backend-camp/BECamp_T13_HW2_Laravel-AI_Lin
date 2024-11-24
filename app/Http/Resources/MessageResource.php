@@ -8,6 +8,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * @property string $role
  * @property string $content
+ * @property string $file_path
  */
 class MessageResource extends JsonResource
 {
@@ -21,6 +22,7 @@ class MessageResource extends JsonResource
         return [
             'role' => $this->role,
             'content' => $this->content,
+            'file_path' => $this->file_path,
         ];
     }
 }
