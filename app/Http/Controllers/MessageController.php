@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateMessageRequest;
 use App\Http\Resources\MessageResource;
-use App\Models\Message;
+use App\Models\User;
 use App\Services\MessageService;
 use App\Traits\ApiResponse;
-use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class MessageController extends Controller
@@ -18,17 +18,18 @@ class MessageController extends Controller
     {
     }
 
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(): void
+    //使用者可以查看某對話串中的所有訊息
+    public function index(): ResourceCollection
     {
-        //
+        /** @var User $user */
+        $user = auth()->user();
+        $threadId = request()->route('thread');
+        $result = $this->messageService->getThreadMessages($user, $threadId);
+
+        return MessageResource::collection($result);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    //使用者建立訊息
     public function store(CreateMessageRequest $createMessageRequest, int $threadId): MessageResource|JsonResponse
     {
         $validatedData = $createMessageRequest->validated();
@@ -40,29 +41,5 @@ class MessageController extends Controller
             ? $this->error($result['message'], $result['statusCode'])
             : new MessageResource($result);
 
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Message $message): void
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Message $message): void
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Message $message): void
-    {
-        //
     }
 }

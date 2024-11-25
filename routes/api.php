@@ -43,3 +43,6 @@ Route::middleware('auth:sanctum')->delete('/threads/{thread}', [ThreadController
 
 // 使用者發送文字訊息，AI回覆文字訊息或是圖片
 Route::middleware('auth:sanctum')->post('/threads/{thread}/messages', [MessageController::class, 'store']);
+
+// 使用者可以查看特定對話串中的所有訊息
+Route::middleware('auth:sanctum')->get('/threads/{thread}/messages', [MessageController::class, 'index']);

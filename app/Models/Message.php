@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Models\Thread $thread
  *
  * @method static Builder|Message where(string $column, mixed $value)
+ * @method static Builder|Message select(array $columns = ['*'])
  */
 class Message extends Model
 {

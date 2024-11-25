@@ -35,6 +35,7 @@ class MessageService
         $this->redis = Redis::connection();
     }
 
+    //使用者建立訊息
     public function createMessage(int $threadId, array $data): Message|array
     {
         $thread = Thread::findOrFail($threadId);
@@ -64,6 +65,18 @@ class MessageService
 
         return $this->handleImageGenerationResponse($thread, $historyMessages);
 
+    }
+
+    //使用者可以查看特定對話串的全部訊息
+    public function getThreadMessages(User $user, int $threadId): Collection
+    {
+        $thread = Thread::findOrFail($threadId);
+        $this->authorize('view', $thread);
+
+        return Message::select(['role', 'content', 'file_path'])
+            ->where('thread_id', $threadId)
+            ->latest()
+            ->get();
     }
 
     // 取得儲存在redis中的總對話串數量，如果沒有則回傳0
