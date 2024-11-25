@@ -61,10 +61,9 @@ class GoogleAuthService
     // 查看第三方登入表是否已建立該使用者
     private function findExistingUserSocailAccount(SocialiteUser $socialiteUser): ?UserSocialAccount
     {
-        return UserSocialAccount::where([
-            ['provider_id', '=', $socialiteUser->getId()],
-            ['provider', '=', self::PROVIDER_NAME],
-        ])->first();
+        return UserSocialAccount::where('provider_id', $socialiteUser->getId())
+            ->where('provider', self::PROVIDER_NAME)
+            ->first();
     }
 
     // 查看User表是否已建立該使用者
