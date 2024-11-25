@@ -25,6 +25,10 @@ class MessageService
 
     private const MAX_FREE_Messages = 10;
 
+    private const MESSAGE_HISTORY_LIMIT = 20;
+
+    private const AUDIO_FILE_PATH = 'audio/';
+
     private const ROLE_MAPPING = [
         MessageRoleType::USER->value => 'user',
         MessageRoleType::ASSISTANT->value => 'assistant',
@@ -107,7 +111,7 @@ class MessageService
         return Message::where('thread_id', $threadId)
             ->select(['role', 'content', 'created_at'])
             ->orderBy('created_at', 'desc')
-            ->take(20)
+            ->take(self::MESSAGE_HISTORY_LIMIT)
             ->get()
             ->reverse();
     }
@@ -204,7 +208,7 @@ class MessageService
     {
         $timestamp = now()->format('Ymd_His');
         $fileName = sprintf('assistant_speech_thread_%s_%s.mp3', $thread->id, $timestamp);
-        $filePath = 'audio/'.$fileName;
+        $filePath = self::AUDIO_FILE_PATH.$fileName;
         Storage::disk('public')->put($filePath, $audioContent);
 
         return $this->storeAssistantMessage($thread, null, $filePath);

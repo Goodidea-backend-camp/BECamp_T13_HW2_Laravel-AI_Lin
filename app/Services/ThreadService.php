@@ -32,6 +32,37 @@ class ThreadService
         : $this->createFreeUserThread($user, $data);
     }
 
+    //使用者可以查看自己建立的所有對話串名稱及類型
+    public function getAllThreads(User $user)
+    {
+        return Thread::where('user_id', $user->id)->get();
+
+    }
+
+    //使用者可以更新對話串名稱
+    public function updateThreadTitle(Thread $thread, array $data): Thread
+    {
+        $this->authorize('update', $thread);
+        $thread->title = $data['title'];
+        $thread->save();
+
+        return $thread;
+    }
+
+    //使用者可以刪除對話串
+    public function deleteThread(Thread $thread): array
+    {
+        $this->authorize('delete', $thread);
+        $thread->delete();
+
+        if (! $thread->user->is_premium) {
+            $this->decrementTotalThreadCount($thread->user_id);
+        }
+
+        return $this->formatResponse('success', 'Thread deleted successfully', Response::HTTP_NO_CONTENT);
+
+    }
+
     //建立免費用戶對話
     private function createFreeUserThread(User $user, array $data): Thread|array
     {
@@ -61,6 +92,7 @@ class ThreadService
         return $count !== null ? (int) $count : 0;
     }
 
+    //增加Redis中的對話串數量
     private function incrementTotalThreadCount(int $userId): void
     {
         $this->redis->incr(sprintf('user:%d:total_thread_count', $userId));
@@ -78,37 +110,7 @@ class ThreadService
         return $thread;
     }
 
-    //查看該使用者建立的所有對話串名稱及類型
-    public function getAllThreads(User $user)
-    {
-        return Thread::where('user_id', $user->id)->get();
-
-    }
-
-    //使用者更新對話串名稱
-    public function updateThreadTitle(Thread $thread, array $data): Thread
-    {
-        $this->authorize('update', $thread);
-        $thread->title = $data['title'];
-        $thread->save();
-
-        return $thread;
-    }
-
-    public function deleteThread(Thread $thread): array
-    {
-        $this->authorize('delete', $thread);
-        $thread->delete();
-
-        if (! $thread->user->is_premium) {
-            $this->decrementTotalThreadCount($thread->user_id);
-        }
-
-        return $this->formatResponse('success', 'Thread deleted successfully', Response::HTTP_NO_CONTENT);
-
-    }
-
-    // 免費用戶在刪除對話時要同時刪除redis中的對話串數量
+    // 免費用戶在刪除對話時同時刪除redis中的對話串數量
     private function decrementTotalThreadCount(int $userId): void
     {
         $this->redis->decr(sprintf('user:%d:total_thread_count', $userId));

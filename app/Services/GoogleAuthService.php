@@ -21,16 +21,14 @@ class GoogleAuthService
     {
     }
 
-    /**
-     * 處理 Google 第三方登入資料
-     */
+    //處理 Google 第三方登入資料
     public function handleCallback(SocialiteUser $socialiteUser): array
     {
         //查看第三方登入表是否已建立該使用者
         $existingUserSocialAccount = $this->findExistingUserSocailAccount($socialiteUser);
 
         // 如果存在，直接登入並發給token
-        if ($existingUserSocialAccount instanceof \App\Models\UserSocialAccount) {
+        if ($existingUserSocialAccount instanceof UserSocialAccount) {
             return $this->loginExistingUser($existingUserSocialAccount->user);
         }
 
@@ -38,23 +36,38 @@ class GoogleAuthService
         $existingUser = $this->findExistingUser($socialiteUser->getEmail());
 
         // 如果有使用本地註冊，在第三方登入表建立資料並與User表建立關聯，並進行登入
-        if ($existingUser instanceof \App\Models\User) {
+        if ($existingUser instanceof User) {
             $this->linkSocialAccountToUser($existingUser, $socialiteUser);
 
             return $this->loginExistingUser($existingUser);
         }
 
-        // 如果都沒有資料，则建立新帳號
+        // 如果都沒有資料，則建立新帳號
         return $this->createNewUser($socialiteUser);
     }
 
-    private function findExistingUserSocailAccount(SocialiteUser $socialiteUser): ?UserSocialAccount
+    //使用者使用Google第三方登入初次註冊帳號時，需補填自我介紹
+    public function setupSelfProfile(User $user, string $selfProfile): array
     {
-        return UserSocialAccount::where('provider_id', $socialiteUser->getId())
-            ->where('provider', self::PROVIDER_NAME)
-            ->first();
+        $profileImagePath = $this->assistant->visualize($selfProfile);
+
+        $user->self_profile = $selfProfile;
+        $user->profile_image_path = $profileImagePath;
+        $user->save();
+
+        return $this->formatResponse('success', 'Self Profile created successfully', Response::HTTP_OK);
     }
 
+    // 查看第三方登入表是否已建立該使用者
+    private function findExistingUserSocailAccount(SocialiteUser $socialiteUser): ?UserSocialAccount
+    {
+        return UserSocialAccount::where([
+            ['provider_id', '=', $socialiteUser->getId()],
+            ['provider', '=', self::PROVIDER_NAME],
+        ])->first();
+    }
+
+    // 查看User表是否已建立該使用者
     private function findExistingUser(string $email): ?user
     {
         /** @var User|null $user */
@@ -73,6 +86,7 @@ class GoogleAuthService
         );
     }
 
+    // 將第三方登入資料與User表建立關聯
     private function linkSocialAccountToUser(User $user, SocialiteUser $socialiteUser): void
     {
         $userSocialAccount = new UserSocialAccount();
@@ -108,23 +122,9 @@ class GoogleAuthService
         );
     }
 
+    // 建立token
     private function createTokenForUser(User $user): NewAccessToken
     {
         return $user->createToken('API Token for '.$user->email, ['*'], now()->addMonth());
-    }
-
-    /**
-     * @param  User  $user
-     *                      使用者使用Google第三方登入初次註冊帳號時，需補填自我介紹
-     */
-    public function setupSelfProfile(User $user, string $selfProfile): array
-    {
-        $profileImagePath = $this->assistant->visualize($selfProfile);
-
-        $user->self_profile = $selfProfile;
-        $user->profile_image_path = $profileImagePath;
-        $user->save();
-
-        return $this->formatResponse('success', 'Self Profile created successfully', Response::HTTP_OK);
     }
 }
