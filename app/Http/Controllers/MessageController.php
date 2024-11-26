@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateMessageRequest;
 use App\Http\Resources\MessageResource;
-use App\Models\User;
 use App\Services\MessageService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Resources\Json\ResourceCollection;
