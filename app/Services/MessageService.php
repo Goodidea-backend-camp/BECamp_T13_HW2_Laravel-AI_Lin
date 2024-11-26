@@ -23,7 +23,7 @@ class MessageService
 
     private $redis;
 
-    private const MAX_FREE_Messages = 10;
+    private const MAX_FREE_MESSAGES = 10;
 
     private const MESSAGE_HISTORY_LIMIT = 20;
 
@@ -39,7 +39,7 @@ class MessageService
         $this->redis = Redis::connection();
     }
 
-    //使用者建立訊息
+    //使用者建立訊息，並在建立訊息前檢查是否為免費用戶，如果是免費用戶則檢查是否超過最大限制
     public function createMessage(int $threadId, array $data): Message|array
     {
         $thread = Thread::findOrFail($threadId);
@@ -47,12 +47,12 @@ class MessageService
         $user = User::findOrFail($thread->user_id);
 
         if (! $user->is_premium) {
-            $totalMessageCount = $this->getTotalMessageCount($threadId);
-            if ($totalMessageCount >= self::MAX_FREE_Messages) {
-                return $this->formatResponse('error', 'You have reached the maximum limit of 3 messages as a free user.Please upgrade to premium to create more messages.', Response::HTTP_FORBIDDEN);
-            }
 
-            $this->incrementTotalMessageCount($threadId);
+            $newTotalMessageCount = $this->checkAndUpdateMessageCount($threadId);
+
+            if ($newTotalMessageCount === -1) {
+                return $this->formatResponse('error', 'You have reached the maximum limit of messages as a free user. Please upgrade to premium to create more messages.', Response::HTTP_FORBIDDEN);
+            }
         }
 
         $this->storeUserMessage($thread, $data['content']);
@@ -72,7 +72,7 @@ class MessageService
     }
 
     //使用者可以查看特定對話串的全部訊息
-    public function getThreadMessages(User $user, int $threadId): Collection
+    public function getThreadMessages(int $threadId): Collection
     {
         $thread = Thread::findOrFail($threadId);
         $this->authorize('view', $thread);
@@ -83,18 +83,27 @@ class MessageService
             ->get();
     }
 
-    // 取得儲存在redis中的總對話串數量，如果沒有則回傳0
-    private function getTotalMessageCount(int $threadId): int
+    //檢查是否超過最大限制並更新訊息數量
+    private function checkAndUpdateMessageCount(int $threadId): int
     {
-        $count = $this->redis->get(sprintf('thread:%d:total_message_count', $threadId));
+        $key = sprintf('thread:%d:total_message_count', $threadId);
 
-        return $count !== null ? (int) $count : 0;
-    }
+        // 透過 Lua Script 來檢查是否超過最大限制並新增訊息數量
+        $newTotalMessageCount = $this->redis->eval("
+            local key = KEYS[1]
+            local current_count = tonumber(redis.call('GET', key))
+            if current_count == nil then
+                current_count = 0  -- 如果返回值是 nil，設定為 0
+            end
+            if current_count >= tonumber(ARGV[1]) then
+                return -1  -- 超過最大限制
+            end
+            local new_count = current_count + 1
+            redis.call('SET', key, new_count)
+            return new_count
+        ", 1, $key, self::MAX_FREE_MESSAGES);
 
-    //增加Redis中的總訊息數量
-    private function incrementTotalMessageCount(int $threadId): void
-    {
-        $this->redis->incr(sprintf('thread:%d:total_message_count', $threadId));
+        return $newTotalMessageCount;
     }
 
     //取得對話串中的所有歷史訊息並合併成一個字串
@@ -129,7 +138,7 @@ class MessageService
     // 取得AI文字回應並將回應存入資料庫
     private function handleChatResponse(Thread $thread, string $historyMessages): Message
     {
-        $response = $this->generateAssistantChatMessage($historyMessages);
+        $response = $this->assistant->send($historyMessages, false);
 
         return $this->storeAssistantChatMessage($thread, $response);
     }
@@ -137,7 +146,7 @@ class MessageService
     // 取得AI語音回應並將回應存入資料庫
     private function handleSpeechResponse(Thread $thread, string $historyMessages): Message
     {
-        $response = $this->generateAssistantSpeechMessage($historyMessages);
+        $response = $this->assistant->send($historyMessages, true);
 
         return $this->storeAssistantSpeechMessage($thread, $response);
     }
@@ -145,27 +154,9 @@ class MessageService
     // 取得AI圖片回應並將回應存入資料庫
     private function handleImageGenerationResponse(Thread $thread, string $historyMessages): Message
     {
-        $response = $this->generateAssistantImageMessage($historyMessages);
+        $response = $this->assistant->visualize($historyMessages);
 
         return $this->storeAssistantImageMessage($thread, $response);
-    }
-
-    //將訊息傳給AI生成文字回應
-    private function generateAssistantChatMessage(string $messages): string
-    {
-        return $this->assistant->send($messages, false);
-    }
-
-    //將訊息傳給AI生成語音回應
-    private function generateAssistantSpeechMessage(string $messages): string
-    {
-        return $this->assistant->send($messages, true);
-    }
-
-    //將訊息傳給AI生成圖片回應
-    private function generateAssistantImageMessage(string $messages): string
-    {
-        return $this->assistant->visualize($messages);
     }
 
     //將用戶輸入的訊息儲存至資料庫
