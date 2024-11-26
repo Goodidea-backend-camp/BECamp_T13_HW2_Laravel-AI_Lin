@@ -21,10 +21,8 @@ class MessageController extends Controller
     //使用者可以查看某對話串中的所有訊息
     public function index(): ResourceCollection
     {
-        /** @var User $user */
-        $user = auth()->user();
         $threadId = request()->route('thread');
-        $result = $this->messageService->getThreadMessages($user, $threadId);
+        $result = $this->messageService->getThreadMessages($threadId);
 
         return MessageResource::collection($result);
     }
