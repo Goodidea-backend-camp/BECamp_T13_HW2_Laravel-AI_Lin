@@ -35,7 +35,7 @@ class Assistant
         $this->addMessage($message, 'assistant');
 
         $response = $this->client->chat()->create([
-            'model' => 'gpt-3.5-turbo',
+            'model' => 'gpt-4o-mini',
             'messages' => $this->messages,
         ])->choices[0]->message->content;
 
@@ -55,7 +55,7 @@ class Assistant
         ]);
     }
 
-    public function visualize(string $description, array $options = [])
+    public function visualize(string $description, array $options = []): string
     {
         $this->addMessage($description);
 
@@ -89,5 +89,16 @@ class Assistant
         ];
 
         return $this;
+    }
+
+    //審核使用者名稱是否符合善良風俗
+    public function isUsernameDecent(string $message): bool
+    {
+        $createResponse = $this->client->moderations()->create([
+            'input' => $message,
+        ]);
+
+        // 如果flagged值為false，表示名稱符合善良風俗
+        return $createResponse->results[0]->flagged === false;
     }
 }
