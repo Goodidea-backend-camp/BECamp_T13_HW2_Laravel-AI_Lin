@@ -14,3 +14,29 @@
 - 使用者註冊完成後，發送驗證信，使用者需點選驗證信以進行帳號的開通，並透過 **Mailtrap** 進行測試。
 - 支援使用者透過 Google 進行第三方登入，使用 Laravel 的 **Socialite Provider** 套件實作。
 - 對於免費使用者建立的對話串以及對話數量進行限制，並透過 **Redis** 實作。
+
+## 安裝與設定
+1. 若未下載 Docker Desktop 或是 [OrbStack](https://orbstack.dev/)（建議）者，需先下載。
+2. 先確認有沒有任何程序佔用 80 port（或是 Docker 要使用的 port 號），若有，需先停止。
+3. 將 fork 的專案 clone 至本地，請執行以下 command：
+( `Path` 為欲放專案的本地路徑， `Username` 為個人 GitHub 帳號， `Your Name` 為專案名稱後綴，請自行替換)
+```
+cd {Path}
+```
+```
+git clone https://github.com/{Username}/BECamp_T13_HW2_Laravel-AI_{Your Name}
+```
+4. 將專案中的 .env.example 複製一份在專案中，並將檔名改為 .env ，完成後儲存。
+5. 請執行以下 command ，安裝專案所需相關套件並啟動開發環境：
+```
+composer install
+```
+```
+./vendor/bin/sail up -d
+```
+```
+./vendor/bin/sail artisan key:generate
+```
+```
+./vendor/bin/sail artisan migrate
+```
