@@ -29,6 +29,7 @@
 - 對於免費使用者建立的對話串以及對話數量進行限制，並透過 **Redis** 實作。
 
 # API 文件
+[Notion api 文件](https://www.notion.so/AI-chat-chat-API-1107d23ea52980d68385fa4a27c8909c)
 
 # 安裝與設定
 1. 若未下載 Docker Desktop 或是 [OrbStack](https://orbstack.dev/)（建議）者，需先下載。
