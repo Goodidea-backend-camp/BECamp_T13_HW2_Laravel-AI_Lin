@@ -18,7 +18,7 @@
   - 使用者需點選驗證信以進行帳號的開通，並透過 **Mailtrap** 進行測試。
 - 登入
 - 登出
-  [註冊、登入、登出 Demo影片](https://www.canva.com/design/DAGcsw0qLm4/VKIZu9XMqnF6hHQn0hEj5g/watch)
+- [註冊、登入、登出 Demo影片](https://www.canva.com/design/DAGcsw0qLm4/VKIZu9XMqnF6hHQn0hEj5g/watch)
 ### Thread
   - 新增對話串
   - 編輯對話串名稱
