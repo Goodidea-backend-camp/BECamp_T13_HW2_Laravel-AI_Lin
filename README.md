@@ -19,6 +19,7 @@
 - 登入
 - 登出
 - [註冊、登入、登出 Demo影片](https://www.canva.com/design/DAGcsw0qLm4/VKIZu9XMqnF6hHQn0hEj5g/watch)
+- [Google 第三方登入 Demo影片](https://www.canva.com/design/DAGctZwtd7g/XC9Y6IOCQFGro376Kg71qg/watch?utm_content=DAGctZwtd7g&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h4ce5bfbb69)
 ### Thread
   - 新增對話串
   - 編輯對話串名稱
